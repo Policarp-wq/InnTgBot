@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "InnTgBot": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}
