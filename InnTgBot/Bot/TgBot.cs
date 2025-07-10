@@ -41,13 +41,6 @@ namespace InnTgBot.Bot
 
         private async Task OnMessageRecieved(Message message, UpdateType type)
         {
-            if (message.Text == null)
-            {
-                Console.WriteLine($"[{message.Date}]: Received from {(message.From == null ? "Chat" : message.From.Username)}: {message.Type}");
-                await SendCustomMessage(new MessageInfo(message.Chat, "Unknown command"));
-                //await SendCustomMessage(GetReplyMessage(message.Chat, HELP_COMMAND));
-                return;
-            }
             Console.WriteLine($"[{message.Date}]: Received from {(message.From == null ? "Chat" : message.From.Username)}: {message.Text}");
             await SendCustomMessage(await GetAnswerMessage.Invoke(message));
 

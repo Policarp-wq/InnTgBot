@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace InnTgBot.Services
 {
-    internal class INNService : IINNService
+    public class INNService : IINNService
     {
         private const string API_URL = "https://suggestions.dadata.ru/suggestions/api/4_1/rs/findById/party";
         private readonly HttpClient _httpClient;
