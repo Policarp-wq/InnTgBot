@@ -10,10 +10,19 @@ if (innApiKey == null)
 
 using HttpClient client = new();
 var inn = new INNService(client, innApiKey);
-TgBot bot = new(tgApiKey, inn);
+var messageHandler = new BotMessageHandler(inn);
+TgBot bot = new(tgApiKey, messageHandler.GetAnswerMessage);
+bot.OnBotStop = async () =>
+{
+    foreach (var id in messageHandler.ClearInnRequests())
+    {
+        await bot.SendCustomMessage(new MessageInfo(id, "Bot is shutting down. Request for INN declined"));
+    }
+};
+
 if (await bot.Check())
     Console.WriteLine("Bot started working. \nPress Esc key to stop...");
 
 while (Console.ReadKey(true).Key != ConsoleKey.Escape) ;
-bot.Stop();
+await bot.Stop();
 Console.WriteLine("Stopped.");

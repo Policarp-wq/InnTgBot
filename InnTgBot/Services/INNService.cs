@@ -16,10 +16,10 @@ namespace InnTgBot.Services
             _innApiKey = innApiKey;
         }
 
-        public async Task<CompanyInfo?> GetCompanyInfo(string inn)
+        public async Task<CompanyInfoResponse> GetCompanyInfo(string inn)
         {
             if (!IINNService.IsValid(inn))
-                throw new FormatException($"Invalid form of the inn: {inn}");
+                return new CompanyInfoResponse(inn, ErrorMessage: "Wrong format");
             HttpContent content = new StringContent(
                 JsonSerializer.Serialize(new INNQuery(inn)),
                 Encoding.UTF8,
@@ -35,49 +35,30 @@ namespace InnTgBot.Services
             httpRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Token", _innApiKey);
             var response = await _httpClient.SendAsync(httpRequest);
             if (!response.IsSuccessStatusCode)
-                return null;
+                return new CompanyInfoResponse(inn, ErrorMessage: "Failed to get response from the inn api service");
             try
             {
                 var companyInfo = await response.Content.ReadAsStringAsync();
                 using JsonDocument document = JsonDocument.Parse(companyInfo);
                 var suggestions = document.RootElement.GetProperty("suggestions");
                 if (suggestions.GetArrayLength() == 0)
-                    return null;
+                    return new CompanyInfoResponse(inn, ErrorMessage: "Not found");
                 var root = suggestions[0];
                 var name = root.GetProperty("value");
                 var address = root.GetProperty("data").GetProperty("address").GetProperty("value");
-                return new CompanyInfo(inn, name.ToString(), address.ToString());
+                return new CompanyInfoResponse(inn, new CompanyInfo(inn, name.ToString(), address.ToString()));
             }
             catch (Exception)
             {
-                return null;
+                return new CompanyInfoResponse(inn, ErrorMessage: "Not found");
             }
         }
 
-        public async Task<List<CompanyInfo>> GetCompanyInfos(string[] inns)
+        public async Task<List<CompanyInfoResponse>> GetCompanyInfos(string[] inns)
         {
-            //Отдельным листом не найденные
-            List<CompanyInfo> res = [];
-            foreach (var inn in inns)
-            {
-                try
-                {
-                    var info = await GetCompanyInfo(inn);
-                    if (info != null)
-                    {
-                        res.Add(info);
-                    }
-                    else
-                    {
-                        res.Add(new CompanyInfo(inn, "Not found", "Not found"));
-                    }
-                }
-                catch (FormatException)
-                {
-                    res.Add(new CompanyInfo(inn, "Wrong format for INN", "Wrong format for INN"));
-                }
-            }
-            return res.OrderBy(c => c.Name).ToList();
+            var tasks = inns.Select(inn => GetCompanyInfo(inn));
+            var results = await Task.WhenAll(tasks);
+            return results.ToList();
         }
     }
 }

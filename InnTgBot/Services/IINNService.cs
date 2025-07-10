@@ -38,7 +38,7 @@ namespace InnTgBot.Services
 
             return false;
         }
-        public Task<CompanyInfo?> GetCompanyInfo(string number);
-        public Task<List<CompanyInfo>> GetCompanyInfos(string[] inn);
+        public Task<CompanyInfoResponse> GetCompanyInfo(string number);
+        public Task<List<CompanyInfoResponse>> GetCompanyInfos(string[] inn);
     }
 }
