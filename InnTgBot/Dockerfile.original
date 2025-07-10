@@ -10,10 +10,10 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["InnTgBot.csproj", "."]
-RUN dotnet restore "./InnTgBot.csproj"
+COPY ["InnTgBot/InnTgBot.csproj", "InnTgBot/"]
+RUN dotnet restore "./InnTgBot/InnTgBot.csproj"
 COPY . .
-WORKDIR "/src/."
+WORKDIR "/src/InnTgBot"
 RUN dotnet build "./InnTgBot.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # Этот этап используется для публикации проекта службы, который будет скопирован на последний этап

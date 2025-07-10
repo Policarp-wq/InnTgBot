@@ -19,10 +19,24 @@ bot.OnBotStop = async () =>
         await bot.SendCustomMessage(new MessageInfo(id, "Bot is shutting down. Request for INN declined"));
     }
 };
+var cts = new CancellationTokenSource();
+Console.CancelKeyPress += (sender, e) =>
+{
+    e.Cancel = true; 
+    cts.Cancel();
+    Console.WriteLine("Stopping...");
+};
 
-if (await bot.Check())
-    Console.WriteLine("Bot started working. \nPress Esc key to stop...");
+try
+{
+    if (await bot.Check())
+        Console.WriteLine("Bot started working. \nPress Ctrl+C to stop...");
+    await Task.Delay(Timeout.Infinite, cts.Token);
+}
+catch (OperationCanceledException)
+{
 
-while (Console.ReadKey(true).Key != ConsoleKey.Escape) ;
+}
+
 await bot.Stop();
 Console.WriteLine("Stopped.");

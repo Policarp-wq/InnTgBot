@@ -7,7 +7,7 @@ namespace InnTgBot.Bot
 {
     public sealed class BotMessageHandler
     {
- 
+
         public const string INIT_COMMAND = "/start";
         public const string CREATOR_INFO_COMMAND = "/hello";
         public const string HELP_COMMAND = "/help";
@@ -33,7 +33,7 @@ namespace InnTgBot.Bot
                     InlineKeyboardButton.WithUrl("hh.ru", "https://hh.ru/resume/17c21b2fff0e996d490039ed1f454f75446353"),
                     InlineKeyboardButton.WithCopyText("email", "tatarkin-evgeniy@mail.ru")
                 ];
-        private readonly HashSet<long> _innRequests; // не потокобезопасен
+        private readonly HashSet<long> _innRequests;
         private readonly ConcurrentDictionary<long, string> _lastCommands;
 
         private readonly IINNService _innService;
@@ -70,7 +70,7 @@ namespace InnTgBot.Bot
             }
             else
             {
-                if(!_lastCommands.TryAdd(chat.Id, command))
+                if (!_lastCommands.TryAdd(chat.Id, command))
                     _lastCommands[chat.Id] = command;
             }
             if (command == INN_QUERY_COMMAND)
@@ -78,7 +78,7 @@ namespace InnTgBot.Bot
                 _innRequests.Add(chat.Id);
                 return new MessageInfo(chat, INN_REQUEST_INFO);
             }
-            
+
             return command switch
             {
                 INIT_COMMAND => new MessageInfo(chat, WELCOME_MESSAGE),
